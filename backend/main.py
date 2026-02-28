@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 import database
 import models
 import schemas
-from scoring_engine import get_heuristic_score, generate_reasons
-from behavioral_engine import get_behavioral_modifier
+from scoring_engine import get_heuristic_score, generate_reasons, detect_psychological_triggers
+from behavioral_engine import get_behavioral_modifier, check_momentum
 from privacy import apply_laplace_noise
 
 models.Base.metadata.create_all(bind=database.engine)
@@ -32,7 +32,12 @@ def startup_db():
 def update_consent(req: schemas.ConsentRequest, db: Session = Depends(database.get_db)):
     user = db.query(models.User).filter(models.User.id == req.anonymized_user_id).first()
     if not user:
-        user = models.User(id=req.anonymized_user_id, role=req.role, consent_status=req.consent_status)
+        user = models.User(
+            id=req.anonymized_user_id, 
+            role=req.role, 
+            consent_status=req.consent_status,
+            interaction_streak=0
+        )
         db.add(user)
     else:
         user.consent_status = req.consent_status
@@ -51,9 +56,15 @@ def revoke_consent(user_id: str, db: Session = Depends(database.get_db)):
 
 @app.post("/check_phishing", response_model=schemas.ScoreResult)
 def check_phishing(req: schemas.CheckPhishingRequest, db: Session = Depends(database.get_db)):
-    # Hybrid Scoring Engine
+    # 1. Check Behavioral Momentum (AI Nudging)
+    is_fast, friction_msg = check_momentum(db, req.user_id)
+    
+    # 2. Hybrid Scoring Engine
     h_score = get_heuristic_score(req.email)
     b_modifier = get_behavioral_modifier(db, req.user_id)
+    
+    # 3. AI Intent Mirroring (Simulated)
+    psych_triggers = detect_psychological_triggers(req.email)
     
     final_score = min(max(h_score + b_modifier, 0.0), 100.0)
     
@@ -73,11 +84,15 @@ def check_phishing(req: schemas.CheckPhishingRequest, db: Session = Depends(data
         score=final_score,
         level=level,
         reasons=reasons,
-        confidence=confidence
+        confidence=confidence,
+        psychological_triggers=psych_triggers,
+        risk_momentum_flag=is_fast,
+        momentum_message=friction_msg if is_fast else None
     )
 
 @app.post("/record_click")
 def record_click(user_id: str, db: Session = Depends(database.get_db)):
+
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if user and user.consent_status:
         user.clicked_phishing_count += 1
