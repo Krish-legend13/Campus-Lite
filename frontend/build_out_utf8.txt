@@ -1,0 +1,37 @@
+﻿  Γû▓ Next.js 14.2.15
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully
+   Linting and checking validity of types ...
+node.exe : 
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program 
+Files\nodejs/node_mo ...
++ 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteExcep 
+   tion
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Failed to compile.
+
+./app/admin/page.tsx
+11:40  Error: Unexpected any. Specify a different type.  
+@typescript-eslint/no-explicit-any
+
+./app/inbox/page.tsx
+41:56  Error: Unexpected any. Specify a different type.  
+@typescript-eslint/no-explicit-any
+42:52  Error: Unexpected any. Specify a different type.  
+@typescript-eslint/no-explicit-any
+55:44  Error: Unexpected any. Specify a different type.  
+@typescript-eslint/no-explicit-any
+
+./components/TeachBackModal.tsx
+34:114  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, 
+`&rdquo;`.  react/no-unescaped-entities
+34:132  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, 
+`&rdquo;`.  react/no-unescaped-entities
+
+info  - Need to disable some ESLint rules? Learn more here: 
+https://nextjs.org/docs/basic-features/eslint#disabling-rules
